@@ -121,7 +121,7 @@ body {
 
 #interface {
     width: 20vw;
-    height: 30vw;
+    height: 35vw;
     display: grid;
     grid-template-rows: 1fr 1fr 2fr;
     grid-template-columns: 1fr 1fr;

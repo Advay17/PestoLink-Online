@@ -4,10 +4,14 @@ let bleAgent = createBleAgent();
 let keyboardAgent = createKeyboardAgent();
 let axisAgent = createMobileAxisAgent();
 let buttonAgent = createMobileButtonAgent();
-let gamepadAgent = createGamepadAgent();
+let gamepadAgent = createGamepadAgent(0);
+let secondaryGamepadAgent = createGamepadAgent(1);
 
 let axisCallback = null
 let buttonCallback = null
+let secondaryAxisCallback = secondaryGamepadAgent.getAxes
+let secondaryButtonCallback = secondaryGamepadAgent.getButtons
+
 
 let mobileElements = document.getElementsByClassName("mobile-only");
 let desktopElements = document.getElementsByClassName("desktop-only");
@@ -20,6 +24,7 @@ let hackSpacerElement = document.getElementById("hack-spacer");
 let toggleMobile = document.getElementById('toggle-mobile-layout');
 let toggleKeyboardWASD = document.getElementById('toggle-keyboard-style');
 let toggleInfo = document.getElementById('toggle-info');
+let toggleDualControllers = document.getElementById('toggle-dual-controllers')
 let lastKeyPressed = 1;
 
 // --------------------------- state management ------------------------------------ //
@@ -39,14 +44,17 @@ document.addEventListener('DOMContentLoaded', function () {
     updateMobileSlider(toggleMobile, toggleState=false);
     updateSlider(toggleKeyboardWASD, toggleState=false);
     updateInfoSlider(toggleInfo, toggleState=false);
+    updateSlider(toggleDualControllers, toggleState=false);
 
     toggleMobile.onmousedown = updateMobileSlider.bind(null, toggleMobile, toggleState=true)
     toggleKeyboardWASD.onmousedown = updateSlider.bind(null, toggleKeyboardWASD, toggleState=true)
     toggleInfo.onmousedown =     updateInfoSlider.bind(null, toggleInfo, toggleState=true)
+    toggleDualControllers.onmousedown = updateSlider.bind(null, toggleDualControllers, toggleState=true)
     
     toggleMobile.ontouchstart = updateMobileSlider.bind(null, toggleMobile, toggleState=true)
     toggleKeyboardWASD.ontouchstart = updateSlider.bind(null, toggleKeyboardWASD, toggleState=true)
     toggleInfo.ontouchstart =     updateInfoSlider.bind(null, toggleInfo, toggleState=true)
+    toggleDualControllers.ontouchstart = updateSlider.bind(null, toggleDualControllers, toggleState=true)
     
     window.setInterval(renderLoop, 100); // call renderLoop every num milliseconds
 });
@@ -113,7 +121,8 @@ function renderLoop() {
     //bytes 1-4: axes
     //bytes 5-6: button states
     //bytes 7-17: pressed keyboard keys
-    let rawPacket = new Uint8Array(1 + 4 + 2 + 11)
+    //byte 18: controller number
+    let rawPacket = new Uint8Array(1 + 4 + 2 + 11 + 1)
 
     rawPacket[0] = 0x01; //packet version
 
@@ -124,6 +133,7 @@ function renderLoop() {
 
     rawPacket[5] = buttonCallback().byte0
     rawPacket[6] = buttonCallback().byte1
+    rawPacket[18] = 0
 
     keyboardArray = keyboardAgent.getKeyboardArray()
     var keys = {
@@ -225,7 +235,24 @@ function renderLoop() {
     }
 
     // console.log(rawPacket)
+
     bleAgent.attemptSend(rawPacket);
+    if(localStorage.getItem(toggleDualControllers.id) === 'true'){
+        let rawPacket2 = new Uint8Array(1 + 4 + 2 + 11 + 1)
+
+        rawPacket2[0] = 0x01; //packet version
+    
+        rawPacket2[1] = secondaryAxisCallback().axis0
+        rawPacket2[2] = secondaryAxisCallback().axis1
+        rawPacket2[3] = secondaryAxisCallback().axis2
+        rawPacket2[4] = secondaryAxisCallback().axis3
+    
+        rawPacket2[5] = secondaryButtonCallback().byte0
+        rawPacket2[6] = secondaryButtonCallback().byte1
+        rawPacket2[18] = 1;
+        // console.log(rawPacket2);
+        bleAgent.attemptSend(rawPacket2);
+    }
 }
 
 // -------------------------------------------- bluetooth --------------------------------------- //
@@ -538,14 +565,14 @@ function createMobileButtonAgent() {
 
 // -------------------------------------------- desktop --------------------------------------- //
 
-function createGamepadAgent() {
+function createGamepadAgent(gamepadNum) {
 
     function getGamepads() {
         return Array.from(navigator.getGamepads()).filter(gamepad => gamepad);
     }
 
     function getSelectedGamepad() {
-        return getGamepads().find(gamepad => gamepad.index == 0);
+        return getGamepads().find(gamepad => gamepad.index == gamepadNum);
     }
 
     var axisValueElements = document.querySelectorAll('[id^="axisValue"]');
@@ -566,7 +593,9 @@ function createGamepadAgent() {
                 let axisValGamepad = convertUnitFloatToByte(gamepad.axes[i])
                 axisValueElements[i].textContent = axisValGamepad
                 let percentage = Math.round((gamepad.axes[i] + 1) * (100 / 2))
-                barElements[i].style.background = `linear-gradient(to right, var(--alf-green) ${percentage}%, grey 0%)`;
+                if(gamepadNum==0){
+                    barElements[i].style.background = `linear-gradient(to right, var(--alf-green) ${percentage}%, grey 0%)`;
+                }
                 axisArray[i] = axisValGamepad
             }
         } else {
@@ -584,18 +613,26 @@ function createGamepadAgent() {
             for (let i = 0; i < 8; i++) {
                 if (gamepad.buttons[i].pressed) {
                     firstByte |= (gamepad.buttons[i].pressed << i);
-                    buttonElements[i].style.background = 'var(--alf-green)';
+                    if(gamepadNum==0){
+                        buttonElements[i].style.background = 'var(--alf-green)';
+                    }
                 } else {
-                    buttonElements[i].style.background = 'grey';
+                    if(gamepadNum==0){
+                        buttonElements[i].style.background = 'grey';
+                    }
                 }
             }
 
             for (let i = 8; i < 16; i++) {
                 if (gamepad.buttons[i].pressed) {
                     secondByte |= (gamepad.buttons[i].pressed << i - 8);
-                    buttonElements[i].style.background = 'var(--alf-green)';
+                    if(gamepadNum==0){
+                        buttonElements[i].style.background = 'var(--alf-green)';
+                    }
                 } else {
-                    buttonElements[i].style.background = 'grey';
+                    if(gamepadNum==0){
+                        buttonElements[i].style.background = 'grey';
+                    }
                 }
             }
         }
