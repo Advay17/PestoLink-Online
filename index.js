@@ -28,7 +28,6 @@ let toggleDualControllers = document.getElementById('toggle-dual-controllers')
 let lastKeyPressed = 1;
 
 // --------------------------- state management ------------------------------------ //
-
 if (localStorage.getItem(toggleMobile.id) == null) {
     if (isMobile) {
         localStorage.setItem(toggleMobile.id, 'true');
@@ -42,17 +41,17 @@ if (localStorage.getItem(toggleMobile.id) == null) {
 
 document.addEventListener('DOMContentLoaded', function () {
     updateMobileSlider(toggleMobile, toggleState=false);
-    updateSlider(toggleKeyboardWASD, toggleState=false);
+    updateKeyboardSlider(toggleKeyboardWASD, toggleState=false);
     updateInfoSlider(toggleInfo, toggleState=false);
     updateSlider(toggleDualControllers, toggleState=false);
 
     toggleMobile.onmousedown = updateMobileSlider.bind(null, toggleMobile, toggleState=true)
-    toggleKeyboardWASD.onmousedown = updateSlider.bind(null, toggleKeyboardWASD, toggleState=true)
+    toggleKeyboardWASD.onmousedown = updateKeyboardSlider.bind(null, toggleKeyboardWASD, toggleState=true)
     toggleInfo.onmousedown =     updateInfoSlider.bind(null, toggleInfo, toggleState=true)
     toggleDualControllers.onmousedown = updateSlider.bind(null, toggleDualControllers, toggleState=true)
     
     toggleMobile.ontouchstart = updateMobileSlider.bind(null, toggleMobile, toggleState=true)
-    toggleKeyboardWASD.ontouchstart = updateSlider.bind(null, toggleKeyboardWASD, toggleState=true)
+    toggleKeyboardWASD.ontouchstart = updateKeyboardSlider.bind(null, toggleKeyboardWASD, toggleState=true)
     toggleInfo.ontouchstart =     updateInfoSlider.bind(null, toggleInfo, toggleState=true)
     toggleDualControllers.ontouchstart = updateSlider.bind(null, toggleDualControllers, toggleState=true)
     
@@ -86,7 +85,16 @@ function updateInfoSlider(sliderElement, toggleState){
         hackSpacerElement.style.display = "grid";
     }
 }
-
+function updateKeyboardSlider(sliderElement, toggleState){
+    let buttonElements = document.querySelectorAll('[id^="buttonDesktop"]');
+    updateSlider(sliderElement, toggleState);
+    let keys=['Q','E','R','T','Y','U','O','P','Z','X','C','V','B','N','M',','];
+    if (localStorage.getItem(toggleKeyboardWASD.id) === 'true') {
+        buttonElements.forEach((button, index)=>button.textContent=keys[index]);
+    } else {
+        buttonElements.forEach((button, index)=>button.textContent=index);
+    }
+}
 function updateSlider(sliderElement, toggleState){
     if(toggleState){
         if ( localStorage.getItem(sliderElement.id) === 'true') {
