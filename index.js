@@ -120,7 +120,7 @@ function updateSlider(sliderElement, toggleState){
 
 // ----------------------------------------- main --------------------------------------- //
 
-function renderLoop() {
+async function renderLoop() {
     var axisValueElements = document.querySelectorAll('[id^="axisValue"]');
     var barElements = document.querySelectorAll('[id^="bar"]');
     var buttonElements = document.querySelectorAll('[id^="buttonDesktop"]');
@@ -242,9 +242,9 @@ function renderLoop() {
         }
     }
 
-    // console.log(rawPacket)
+    console.log(rawPacket)
 
-    bleAgent.attemptSend(rawPacket);
+    await bleAgent.attemptSend(rawPacket);
     if(localStorage.getItem(toggleDualControllers.id) === 'true'){
         let rawPacket2 = new Uint8Array(1 + 4 + 2 + 11 + 1)
 
@@ -258,8 +258,8 @@ function renderLoop() {
         rawPacket2[5] = secondaryButtonCallback().byte0
         rawPacket2[6] = secondaryButtonCallback().byte1
         rawPacket2[18] = 1;
-        // console.log(rawPacket2);
-        bleAgent.attemptSend(rawPacket2);
+        console.log(rawPacket2);
+        await bleAgent.attemptSend(rawPacket2);
     }
 }
 
