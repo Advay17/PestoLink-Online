@@ -614,9 +614,7 @@ function createGamepadAgent(gamepadNum) {
                 let axisValGamepad = convertUnitFloatToByte(gamepad.axes[i])
                 axisValueElements[i].textContent = axisValGamepad
                 let percentage = Math.round((gamepad.axes[i] + 1) * (100 / 2))
-                if(gamepadNum==0){
-                    barElements[i].style.background = `linear-gradient(to right, var(--alf-green) ${percentage}%, grey 0%)`;
-                }
+                barElements[i].style.background = `linear-gradient(to right, var(--alf-green) ${percentage}%, grey 0%)`;
                 axisArray[i] = axisValGamepad
             }
         } else {
@@ -634,26 +632,19 @@ function createGamepadAgent(gamepadNum) {
             for (let i = 0; i < 8; i++) {
                 if (gamepad.buttons[i].pressed) {
                     firstByte |= (gamepad.buttons[i].pressed << i);
-                    if(gamepadNum==0){
-                        buttonElements[i].style.background = 'var(--alf-green)';
-                    }
+                    buttonElements[i].style.background = 'var(--alf-green)';
+                    
                 } else {
-                    if(gamepadNum==0){
-                        buttonElements[i].style.background = 'grey';
-                    }
+                    buttonElements[i].style.background = 'grey';
                 }
             }
 
             for (let i = 8; i < 16; i++) {
                 if (gamepad.buttons[i].pressed) {
                     secondByte |= (gamepad.buttons[i].pressed << i - 8);
-                    if(gamepadNum==0){
-                        buttonElements[i].style.background = 'var(--alf-green)';
-                    }
+                    buttonElements[i].style.background = 'var(--alf-green)';
                 } else {
-                    if(gamepadNum==0){
-                        buttonElements[i].style.background = 'grey';
-                    }
+                    buttonElements[i].style.background = 'grey';
                 }
             }
         }
