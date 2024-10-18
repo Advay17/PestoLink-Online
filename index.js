@@ -134,7 +134,7 @@ function updateSlider(sliderElement, toggleState){
 // ----------------------------------------- main --------------------------------------- //
 
 async function renderLoop() {
-    var axisValueElements = document.querySelectorAll('[id^="axisValue"]');
+    var axisValueElements = document.querySelectorAll('[id^="0axisValue"]');
     var barElements = document.querySelectorAll('[id^="0bar"]');
     var buttonElements = document.querySelectorAll('[id^="0buttonDesktop"]');
     // console.log(document.lastKeyPressed);
