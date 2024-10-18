@@ -43,17 +43,17 @@ document.addEventListener('DOMContentLoaded', function () {
     updateMobileSlider(toggleMobile, toggleState=false);
     updateKeyboardSlider(toggleKeyboardWASD, toggleState=false);
     updateInfoSlider(toggleInfo, toggleState=false);
-    updateSlider(toggleDualControllers, toggleState=false);
+    updateDualControllerSlider(toggleDualControllers, toggleState=false);
 
     toggleMobile.onmousedown = updateMobileSlider.bind(null, toggleMobile, toggleState=true)
     toggleKeyboardWASD.onmousedown = updateKeyboardSlider.bind(null, toggleKeyboardWASD, toggleState=true)
     toggleInfo.onmousedown =     updateInfoSlider.bind(null, toggleInfo, toggleState=true)
-    toggleDualControllers.onmousedown = updateSlider.bind(null, toggleDualControllers, toggleState=true)
+    toggleDualControllers.onmousedown = updateDualControllerSlider.bind(null, toggleDualControllers, toggleState=true)
     
     toggleMobile.ontouchstart = updateMobileSlider.bind(null, toggleMobile, toggleState=true)
     toggleKeyboardWASD.ontouchstart = updateKeyboardSlider.bind(null, toggleKeyboardWASD, toggleState=true)
     toggleInfo.ontouchstart =     updateInfoSlider.bind(null, toggleInfo, toggleState=true)
-    toggleDualControllers.ontouchstart = updateSlider.bind(null, toggleDualControllers, toggleState=true)
+    toggleDualControllers.ontouchstart = updateDualControllerSlider.bind(null, toggleDualControllers, toggleState=true)
     
     window.setInterval(renderLoop, 100); // call renderLoop every num milliseconds
 });
@@ -86,13 +86,26 @@ function updateInfoSlider(sliderElement, toggleState){
     }
 }
 function updateKeyboardSlider(sliderElement, toggleState){
-    let buttonElements = document.querySelectorAll('[id^="buttonDesktop"]');
+    let buttonElements = document.querySelectorAll('[id^="0buttonDesktop"]');
     updateSlider(sliderElement, toggleState);
     let keys=['Q','E','R','T','Y','U','O','P','Z','X','C','V','B','N','M',','];
     if (localStorage.getItem(toggleKeyboardWASD.id) === 'true') {
         buttonElements.forEach((button, index)=>button.textContent=keys[index]);
     } else {
         buttonElements.forEach((button, index)=>button.textContent=index);
+    }
+}
+function updateDualControllerSlider(sliderElement, toggleState){
+    updateSlider(sliderElement, toggleState);
+    if (localStorage.getItem(toggleDualControllers.id) === 'true') {
+        document.getElementById("desktop-button1").style.display="grid"
+        document.getElementById("desktop-axis1").style.display="grid"
+        console.log(document.getElementById("desktop-button1").hidden);
+        for (let element of desktopElements) element.style.height = "20vw";
+    } else {
+        document.getElementById("desktop-button1").style.display="none"
+        document.getElementById("desktop-axis1").style.display="none"
+        for (let element of desktopElements) element.style.height = "30vw";
     }
 }
 function updateSlider(sliderElement, toggleState){
@@ -122,8 +135,8 @@ function updateSlider(sliderElement, toggleState){
 
 async function renderLoop() {
     var axisValueElements = document.querySelectorAll('[id^="axisValue"]');
-    var barElements = document.querySelectorAll('[id^="bar"]');
-    var buttonElements = document.querySelectorAll('[id^="buttonDesktop"]');
+    var barElements = document.querySelectorAll('[id^="0bar"]');
+    var buttonElements = document.querySelectorAll('[id^="0buttonDesktop"]');
     // console.log(document.lastKeyPressed);
     //bytes 0: packet version
     //bytes 1-4: axes
@@ -242,7 +255,7 @@ async function renderLoop() {
         }
     }
 
-    console.log(rawPacket)
+    // console.log(rawPacket)
 
     await bleAgent.attemptSend(rawPacket);
     if(localStorage.getItem(toggleDualControllers.id) === 'true'){
@@ -258,7 +271,7 @@ async function renderLoop() {
         rawPacket2[5] = secondaryButtonCallback().byte0
         rawPacket2[6] = secondaryButtonCallback().byte1
         rawPacket2[18] = 1;
-        console.log(rawPacket2);
+        // console.log(rawPacket2);
         await bleAgent.attemptSend(rawPacket2);
     }
 }
@@ -584,8 +597,8 @@ function createGamepadAgent(gamepadNum) {
     }
 
     var axisValueElements = document.querySelectorAll('[id^="axisValue"]');
-    var barElements = document.querySelectorAll('[id^="bar"]');
-    var buttonElements = document.querySelectorAll('[id^="buttonDesktop"]');
+    var barElements = document.querySelectorAll('[id^="'+gamepadNum+'bar"]');
+    var buttonElements = document.querySelectorAll('[id^="'+gamepadNum+'buttonDesktop"]');
 
     function convertUnitFloatToByte(unitFloat) {
         let byte = 127
