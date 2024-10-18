@@ -595,7 +595,7 @@ function createGamepadAgent(gamepadNum) {
         return getGamepads().find(gamepad => gamepad.index == gamepadNum);
     }
 
-    var axisValueElements = document.querySelectorAll('[id^="axisValue"]');
+    var axisValueElements = document.querySelectorAll('[id^="'+gamepadNum+'axisValue"]');
     var barElements = document.querySelectorAll('[id^="'+gamepadNum+'bar"]');
     var buttonElements = document.querySelectorAll('[id^="'+gamepadNum+'buttonDesktop"]');
 
